@@ -105,17 +105,17 @@ function Payment() {
       // Extract details from the first service
       const {
         name,
-        astroAmount,
-        yogaAmount,
-        vastuAmount,
-        poojaAmount,
+        astroTotalAmount,
+        yogaTotalAmount,
+        vastuTotalAmount,
+        poojaTotalAmount,
         shraddhaType,
       } = storedServices[0];
       const totalAmount =
-        (astroAmount || 0) +
-        (yogaAmount || 0) +
-        (vastuAmount || 0) +
-        (poojaAmount || 0);
+        (astroTotalAmount || 0) +
+        (yogaTotalAmount || 0) +
+        (vastuTotalAmount || 0) +
+        (poojaTotalAmount || 0);
 
       // Format service details
       let serviceDetails = storedServices
@@ -139,10 +139,6 @@ function Payment() {
         "this is update serive data",
         JSON.parse(localStorage.getItem("userServiceData"))
       );
-
-
-      
-
 
       // Email content
       let emailData = {
@@ -174,6 +170,130 @@ function Payment() {
       setLoading(false);
     }
   };
+
+  const [poojaCount, setpoojaCount] = useState(1);
+  const [astroCount, setastroCount] = useState(1);
+  const [vastuCount, setvastuCount] = useState(1);
+  const [yogaCount, setyogaCount] = useState(1);
+
+  const handleIncrement = (service) => {
+    let updatedCount;
+    let countKey;
+    let amountKey;
+    let unitAmount;
+  
+    if (service.poojaType !== "") {
+      updatedCount = poojaCount + 1;
+      setpoojaCount(updatedCount);
+      countKey = "poojaCount";
+      amountKey = "poojaTotalAmount";
+      unitAmount = service.poojaAmount;
+    } else if (service.astrologyType !== "") {
+      updatedCount = astroCount + 1;
+      setastroCount(updatedCount);
+      countKey = "astroCount";
+      amountKey = "astroTotalAmount";
+      unitAmount = service.astroAmount;
+    } else if (service.vastuType !== "") {
+      updatedCount = vastuCount + 1;
+      setvastuCount(updatedCount);
+      countKey = "vastuCount";
+      amountKey = "vastuTotalAmount";
+      unitAmount = service.vastuAmount;
+    } else {
+      updatedCount = yogaCount + 1;
+      setyogaCount(updatedCount);
+      countKey = "yogaCount";
+      amountKey = "yogaTotalAmount";
+      unitAmount = service.yogaAmount;
+    }
+  
+    let storedServices = JSON.parse(localStorage.getItem("userServiceData")) || [];
+  
+    const updatedServices = storedServices.map(item => {
+      if (item.id === service.id) {
+        return {
+          ...item,
+          [countKey]: updatedCount,
+          [amountKey]: updatedCount * unitAmount
+        };
+      }
+      return item;
+    });
+  
+    localStorage.setItem("userServiceData", JSON.stringify(updatedServices));
+    console.log(updatedServices.find(item => item.id === service.id));
+  };
+
+  const handleDecrement = (service) => {
+    let updatedCount;
+    let countKey;
+    let amountKey;
+    let unitAmount;
+
+  if (service.poojaType !== "") {
+    if (poojaCount <= 1) return;
+    updatedCount = poojaCount - 1;
+    setpoojaCount(updatedCount);
+    countKey = "poojaCount";
+    amountKey = "poojaTotalAmount";
+    unitAmount = service.poojaAmount;
+  } else if (service.astrologyType !== "") {
+    if (astroCount <= 1) return;
+    updatedCount = astroCount - 1;
+      setastroCount(updatedCount);
+      countKey = "astroCount";
+      amountKey = "astroTotalAmount";
+      unitAmount = service.astroAmount;
+  } else if (service.vastuType !== "") {
+    if (vastuCount <= 1) return;
+    updatedCount = vastuCount - 1;
+    setvastuCount(updatedCount);
+    countKey = "vastuCount";
+    amountKey = "vastuTotalAmount";
+    unitAmount = service.vastuAmount;
+  } else {
+    if (yogaCount <= 1) return;
+    updatedCount = yogaCount - 1;
+    setyogaCount(updatedCount);
+    countKey = "yogaCount";
+    amountKey = "yogaTotalAmount";
+    unitAmount = service.yogaAmount;
+  }
+
+  let storedServices = JSON.parse(localStorage.getItem("userServiceData")) || [];
+
+  const updatedServices = storedServices.map(item => {
+    if (item.id === service.id) {
+      return {
+        ...item,
+        [countKey]: updatedCount,
+        [amountKey]: updatedCount * unitAmount
+      };
+    }
+    return item;
+  });
+
+  localStorage.setItem("userServiceData", JSON.stringify(updatedServices));
+  console.log(updatedServices.find(item => item.id === service.id));
+};
+
+  useEffect(() => {
+    const getData = () => {
+      try {
+        let storedServices =
+          JSON.parse(localStorage.getItem("userServiceData")) || [];
+        setServices(storedServices);
+        calculateTotalAmount(storedServices);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    getData();
+  }, [poojaCount,astroCount,vastuCount,yogaCount]);
+  
+
   return (
     <Container>
       <div className="flex justify-center min-h-screen w-screen bg-gray-100">
@@ -229,8 +349,15 @@ function Payment() {
                       <div className="block py-3">
                         <div className="flex justify-between">
                           <h3 className="text-2xl font-semibold text-custom-maroon">
-                            Pooja Service
+                            Pooja Service 
                           </h3>
+
+                        {/* add and delete */}
+                        <div className="flex rounded-xl bg-custom-maroon text-white">
+                        <p className=" p-2 font-semibold cursor-pointer" onClick={()=>handleDecrement(service)}>-</p>
+                        <p className=" p-2 font-semibold">{service.poojaCount || poojaCount}</p>
+                        <p className=" p-2 font-semibold cursor-pointer" onClick={()=>handleIncrement(service)}>+</p>
+                        </div>
 
                           <button
                             type="button"
@@ -277,7 +404,7 @@ function Payment() {
                           <div>
                             <label className="text-xl">Amount:</label>
                             <input
-                              value={`${service.poojaAmount} ₹`}
+                              value={`${service.poojaTotalAmount || service.poojaAmount} ₹`}
                               name="pooja_amount"
                               className="p-3 text-xl font-semibold w-full bg-gray-200 pointer-events-none"
                               readOnly
@@ -293,6 +420,14 @@ function Payment() {
                           <h3 className="text-2xl font-semibold text-custom-maroon">
                             Yoga Service
                           </h3>
+
+                          {/* add and delete */}
+                          <div className="flex rounded-xl bg-custom-maroon text-white">
+                        <p className=" p-2 font-semibold cursor-pointer" onClick={()=>handleDecrement(service)}>-</p>
+                        <p className=" p-2 font-semibold">{service.yogaCount ||yogaCount}</p>
+                        <p className=" p-2 font-semibold cursor-pointer" onClick={()=>handleIncrement(service)}>+</p>
+                        </div>
+
                           <button
                             type="button"
                             className="px-4 py-1 bg-custom-maroon text-custom-ivory"
@@ -347,7 +482,7 @@ function Payment() {
                           <div>
                             <label className="text-xl">Amount:</label>
                             <input
-                              value={`${service.yogaAmount} ₹`}
+                              value={`${service.yogaTotalAmount || service.yogaAmount} ₹`}
                               name="yoga_amount"
                               className="p-3 text-xl font-semibold w-full bg-gray-200 pointer-events-none"
                               readOnly
@@ -363,6 +498,14 @@ function Payment() {
                           <h3 className="text-2xl font-semibold text-custom-maroon">
                             Vastu Service
                           </h3>
+
+                          {/* add and delete */}
+                          <div className="flex rounded-xl bg-custom-maroon text-white">
+                        <p className=" p-2 font-semibold cursor-pointer" onClick={()=>handleDecrement(service)}>-</p>
+                        <p className=" p-2 font-semibold">{service.vastuCount || vastuCount}</p>
+                        <p className=" p-2 font-semibold cursor-pointer" onClick={()=>handleIncrement(service)}>+</p>
+                        </div>
+
                           <button
                             type="button"
                             className="px-4 py-1 bg-custom-maroon text-custom-ivory"
@@ -417,7 +560,7 @@ function Payment() {
                           <div>
                             <label className="text-xl">Amount:</label>
                             <input
-                              value={`${service.vastuAmount} ₹`}
+                              value={`${service.vastuTotalAmount || service.vastuAmount} ₹`}
                               name="vastu_amount"
                               className="p-3 text-xl font-semibold w-full bg-gray-200 pointer-events-none"
                               readOnly
@@ -485,6 +628,14 @@ function Payment() {
                           <h3 className="text-2xl font-semibold text-custom-maroon">
                             Astrology Service
                           </h3>
+
+                          {/* add and delete */}
+                          <div className="flex rounded-xl bg-custom-maroon text-white">
+                        <p className=" p-2 font-semibold cursor-pointer" onClick={()=>handleDecrement(service)}>-</p>
+                        <p className=" p-2 font-semibold">{service.astroCount ||astroCount}</p>
+                        <p className=" p-2 font-semibold cursor-pointer" onClick={()=>handleIncrement(service)}>+</p>
+                        </div>
+
                           <button
                             type="button"
                             className="px-4 py-1 bg-custom-maroon text-custom-ivory"
@@ -566,7 +717,7 @@ function Payment() {
                           <div>
                             <label className="text-xl">Amount:</label>
                             <input
-                              value={`${service.astroAmount} ₹`}
+                              value={`${service.astroTotalAmount || service.astroAmount} ₹`}
                               name="astro_amount"
                               className="p-3 text-xl font-semibold w-full bg-gray-200 pointer-events-none"
                               readOnly
