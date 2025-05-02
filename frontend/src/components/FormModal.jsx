@@ -40,7 +40,10 @@ function FormModal({
   const submitHandler = async (e) => {
     e.preventDefault();
 
-    const service = [
+    
+const existingServices = JSON.parse(localStorage.getItem("userServiceData")) || [];
+
+    const service = 
       {
         id: Math.floor(Math.random() * 1000),
         name,
@@ -62,10 +65,11 @@ function FormModal({
         yogaAmount,
         vastuAmount,
         poojaAmount,
-      },
-    ];
+      };
 
-    localStorage.setItem("userServiceData", JSON.stringify(service));
+    existingServices.push(service);
+
+    localStorage.setItem("userServiceData", JSON.stringify(existingServices));
     window.dispatchEvent(new Event('servicesUpdated'));
     
     if (state) {

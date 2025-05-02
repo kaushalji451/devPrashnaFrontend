@@ -96,7 +96,7 @@ function Payment() {
     try {
       let storedServices =
         JSON.parse(localStorage.getItem("userServiceData")) || [];
-
+      console.log(storedServices);
       if (!storedServices.length) {
         alert("No services found!");
         return;
@@ -292,7 +292,7 @@ function Payment() {
 
     getData();
   }, [poojaCount,astroCount,vastuCount,yogaCount]);
-  
+
 
   return (
     <Container>
@@ -404,7 +404,7 @@ function Payment() {
                           <div>
                             <label className="text-xl">Amount:</label>
                             <input
-                              value={`${service.poojaTotalAmount || service.poojaAmount} ₹`}
+                              value={`₹${service.poojaTotalAmount || service.poojaAmount}`}
                               name="pooja_amount"
                               className="p-3 text-xl font-semibold w-full bg-gray-200 pointer-events-none"
                               readOnly
@@ -482,7 +482,7 @@ function Payment() {
                           <div>
                             <label className="text-xl">Amount:</label>
                             <input
-                              value={`${service.yogaTotalAmount || service.yogaAmount} ₹`}
+                              value={`₹${service.yogaTotalAmount || service.yogaAmount} `}
                               name="yoga_amount"
                               className="p-3 text-xl font-semibold w-full bg-gray-200 pointer-events-none"
                               readOnly
@@ -560,7 +560,7 @@ function Payment() {
                           <div>
                             <label className="text-xl">Amount:</label>
                             <input
-                              value={`${service.vastuTotalAmount || service.vastuAmount} ₹`}
+                              value={`₹${service.vastuTotalAmount || service.vastuAmount}`}
                               name="vastu_amount"
                               className="p-3 text-xl font-semibold w-full bg-gray-200 pointer-events-none"
                               readOnly
@@ -717,7 +717,7 @@ function Payment() {
                           <div>
                             <label className="text-xl">Amount:</label>
                             <input
-                              value={`${service.astroTotalAmount || service.astroAmount} ₹`}
+                              value={`₹${service.astroTotalAmount || service.astroAmount}`}
                               name="astro_amount"
                               className="p-3 text-xl font-semibold w-full bg-gray-200 pointer-events-none"
                               readOnly
